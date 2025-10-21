@@ -10,50 +10,46 @@ const ll N = 2000000;
 const ll INF = 1e18;
 const ll MOD = 1e9 + 7;
 
+/*
+使用前记得 init
+*/
 namespace ST {
-    const int M = 21;
     int lg[N];
-
     void init(int n) {
         lg[0] = 0, lg[1] = 0;
         for (int i = 2;i<=n;i++) {
             lg[i] = lg[i / 2] + 1;
         }
     }
-
     struct ST {
         struct Info {
-            ll mx;
-
-            Info (ll MX = 0) {
-                mx = MX;
+            ll val;
+            Info() {
+                val = INF;
             }
-
-            Info operator+(const Info& A) {
-                return Info(max(mx, A.mx));
+            Info operator+(const Info& A) const {
+                Info z;
+                z.val = min(val, A.val);
+                return z;
             }
         };
-
         vector<vector<Info>> f;
-
-        void init(vector<ll>& a) {
-            int n = a.size() - 1;
-            f.clear();
-            f.resize(n + 1);
-            for (int i = 1;i<=n;i++) {
-                f[i].resize(M + 1);
-            }
-            for (int j = 1;j<=M;j++) {
-                for (int i = 1;i+(1<<j)-1<=n;i++) {
-                    f[i][j] = f[i][j - 1] + f[i + (1 << (j - 1))][j - 1];
-                }
-            }
+        void init(const vector<ll>& a) {
+            int n = (int)a.size();
+            if (n == 0) return;
+            for (int i = 2; i <= n; ++i) lg[i] = lg[i >> 1] + 1;
+            int K = lg[n];
+            f.assign(K + 1, vector<Info>(n));
+            for (int i = 0; i < n; ++i) f[0][i].val = a[i];
+            for (int k = 1; k <= K; ++k)
+                for (int i = 0; i + (1 << k) <= n; ++i)
+                    f[k][i] = f[k - 1][i] + f[k - 1][i + (1 << (k - 1))];
         }
-
         Info query(int l, int r) {
             if (l > r) return Info();
-            int s = lg[r - l + 1];
-            return f[l][s] + f[r - (1 << s) + 1][s];
+            int len = r - l + 1;
+            int k = lg[len];
+            return f[k][l] + f[k][r - (1 << k) + 1];
         }
     };
-};
+}

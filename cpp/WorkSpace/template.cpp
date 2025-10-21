@@ -1,9 +1,17 @@
-#include <bits/stdc++.h>
-using namespace std;
 #define DEBUG 1
+#if DEBUG
+    #include "all.hpp"
+#else
+    #include <bits/stdc++.h>
+#endif
+
+using namespace std;
 using ll = long long;
 using pii = pair<int,int>;
 using pll = pair<ll,ll>;
+using db = long double;
+using pdd = pair<db, db>;
+
 const ll N = 2000000;
 const ll INF = 5e18;
 const ll MOD = 1e9 + 7;

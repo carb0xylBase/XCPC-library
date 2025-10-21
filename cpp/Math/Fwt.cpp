@@ -27,6 +27,14 @@ vector<ll> fwt(vector<ll>& a){
     return a;
 }
 
+vector<ll> FWT(vector<ll>& a) {
+    vector<ll> b = a;
+    fwt(b);
+    for (int i = 0;i<b.size();i++) b[i]=b[i]*b[i];
+    fwt(b);
+    for (int i = 0;i<b.size();i++) b[i] /= b.size();
+    return b;
+}
 
 void solve() {
     ll n, m, k; cin >> n >> m >> k;
@@ -43,12 +51,7 @@ void solve() {
         a[x] ++;
     }
 
-    vector<ll> b=a;
-    fwt(b);
-    for(int i=0;i<M;i++) b[i]=b[i]*b[i];
-    fwt(b);
-    for(int i=0;i<M;i++) b[i]/=M;
-    a = b;
+    a = FWT(a);
 
     for (int i = 0;i<M;i++) {
         for (int j = 0;j<m;j++) {
