@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999996 (TeX Live 2024) (preloaded format=xelatex 2025.1.6)  18 OCT 2025 19:12
+This is XeTeX, Version 3.141592653-2.6-0.999996 (TeX Live 2024) (preloaded format=xelatex 2025.1.6)  30 OCT 2025 17:36
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -291,7 +291,8 @@ Package: amsthm 2020/05/29 v2.20.6
 \c@corollary=\count305
 \c@definition=\count306
 \c@example=\count307
- (./blog.aux)
+
+No file blog.aux.
 \openout1 = `blog.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 14.
@@ -367,17 +368,18 @@ LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `bold'
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
 (Font)                  OT1/cmtt/m/n --> TU/lmtt/b/n on input line 14.
 LaTeX Font Info:    Trying to load font information for U+msa on input line 16.
- (e:/TexLive/texlive/2024/texmf-dist/tex/latex/amsfonts/umsa.fd
+(e:/TexLive/texlive/2024/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
 LaTeX Font Info:    Trying to load font information for U+msb on input line 16.
  (e:/TexLive/texlive/2024/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
-) (./blog.toc)
+)
+No file blog.toc.
 \tf@toc=\write3
 \openout3 = `blog.toc'.
 
- [1
+[1
 
 ]
 LaTeX Font Info:    Font shape `TU/SimSun(0)/m/sl' in size <10.53937> not available
@@ -389,10 +391,10 @@ L3 programming layer <2022/07/14>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 8268 strings out of 476720
- 228730 string characters out of 5800653
+ 8262 strings out of 476720
+ 228652 string characters out of 5800653
  1931842 words of memory out of 5000000
- 30198 multiletter control sequences out of 15000+600000
+ 30196 multiletter control sequences out of 15000+600000
  567451 words of font info for 100 fonts, out of 8000000 for 9000
  36 hyphenation exceptions out of 8191
  93i,9n,97p,376b,271s stack positions out of 10000i,1000n,20000p,200000b,200000s

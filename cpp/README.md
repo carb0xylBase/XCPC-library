@@ -1,6 +1,6 @@
 # Summary
 Run summarize.bat to update this file.
-## Last Updated: 2025-10-16
+## Last Updated: 2025-10-30
 ## Author: HuangZy
 [TOC]
 ## DataStructure
@@ -618,6 +618,10 @@ typedef long long ll;
 const ll N = 2000000;
 const ll INF = 1e18;
 
+/*
+切记 pd 清空旧标记
+*/
+
 #define LS (rt << 1)
 #define RS (rt << 1 | 1)
 
@@ -1184,139 +1188,49 @@ const ll N = 2000000;
 const ll INF = 1e18;
 const ll MOD = 1e9 + 7;
 
+/*
+使用前记得 init
+*/
 namespace ST {
-    const int M = 21;
     int lg[N];
-
     void init(int n) {
         lg[0] = 0, lg[1] = 0;
         for (int i = 2;i<=n;i++) {
             lg[i] = lg[i / 2] + 1;
         }
     }
-
     struct ST {
         struct Info {
-            ll mx;
-
-            Info (ll MX = 0) {
-                mx = MX;
+            ll val;
+            Info() {
+                val = INF;
             }
-
-            Info operator+(const Info& A) {
-                return Info(max(mx, A.mx));
+            Info operator+(const Info& A) const {
+                Info z;
+                z.val = min(val, A.val);
+                return z;
             }
         };
-
         vector<vector<Info>> f;
-
-        void init(vector<ll>& a) {
-            int n = a.size() - 1;
-            f.clear();
-            f.resize(n + 1);
-            for (int i = 1;i<=n;i++) {
-                f[i].resize(M + 1);
-            }
-            for (int j = 1;j<=M;j++) {
-                for (int i = 1;i+(1<<j)-1<=n;i++) {
-                    f[i][j] = f[i][j - 1] + f[i + (1 << (j - 1))][j - 1];
-                }
-            }
+        void init(const vector<ll>& a) {
+            int n = (int)a.size();
+            if (n == 0) return;
+            for (int i = 2; i <= n; ++i) lg[i] = lg[i >> 1] + 1;
+            int K = lg[n];
+            f.assign(K + 1, vector<Info>(n));
+            for (int i = 0; i < n; ++i) f[0][i].val = a[i];
+            for (int k = 1; k <= K; ++k)
+                for (int i = 0; i + (1 << k) <= n; ++i)
+                    f[k][i] = f[k - 1][i] + f[k - 1][i + (1 << (k - 1))];
         }
-
         Info query(int l, int r) {
             if (l > r) return Info();
-            int s = lg[r - l + 1];
-            return f[l][s] + f[r - (1 << s) + 1][s];
+            int len = r - l + 1;
+            int k = lg[len];
+            return f[k][l] + f[k][r - (1 << k) + 1];
         }
     };
-};
-"\n"
-```
-
-## Trie.cpp
-```cpp
-#include <bits/stdc++.h>
-using namespace std;
-#define DEBUG 1
-using ll = long long;
-using pii = pair<int,int>;
-using pll = pair<ll,ll>;
-const ll N = 2000000;
-const ll INF = 5e18;
-const ll MOD = 1e9 + 7;
-
-
-struct Trie {
-    int cnt;
-    struct Node {
-        int ch[2];
-        Node () {
-            ch[0] = ch[1] = -1;
-        }
-    };
-    vector<Node> nodes;
-
-    int newNode() {
-        nodes.push_back(Node());
-        return ++cnt;
-    }
-
-    Trie() {
-        nodes.resize(1);
-        cnt = 0;
-    };
-
-    void insert(ll x) {
-        int rt = 0;
-        for (int i = 30;i>=0;i--) {
-            int nxt;
-            if ((x>>i)&1) {
-                nxt = 1;
-            } else {
-                nxt = 0;
-            }
-
-            if (nodes[rt].ch[nxt] == -1) {
-                nodes[rt].ch[nxt] = newNode();
-            }
-
-            rt = nodes[rt].ch[nxt];
-        }
-        return;
-    }
-
-    ll getMx(ll x) {
-        int rt = 0;
-        ll ans = 0;
-        for (int i = 30;i>=0;i--) {
-            int nxt;
-            if ((x>>i)&1) {
-                nxt = 0;
-            } else {
-                nxt = 1;
-            }
-
-            if (nodes[rt].ch[nxt] == -1) {
-                if (nodes[rt].ch[nxt^1] == -1) {
-                    return 0;
-                } else {
-                    rt = nodes[rt].ch[nxt^1];
-                }
-            } else {
-                rt = nodes[rt].ch[nxt];
-                ans = ans + (1<<i);
-            }
-        }
-        return ans;
-    }
-
-    void init() {
-        cnt = 0;
-        nodes.clear();
-        nodes.resize(1);
-    }
-};"\n"
+}"\n"
 ```
 
 ## ConvexHull.cpp
@@ -2732,37 +2646,17 @@ using namespace std;
 typedef long long ll;
 const ll N = 2000000;
 
-class Graph{
-public:
-    struct Edge{
-        int next,to,w;
-    }edge[N];
-    int head[N],cnt;
-    Graph (int N = 0){
-        for (int i = 0;i<N+1;i++){
-            head[i] = 0;
-        }
-    }
-    void init(int N){
-        for (int i = 0;i<N+1;i++){
-            head[i] = 0;
-        }
-    }
-    void add(int u,int v,int w){
-        edge[++cnt].next = head[u];
-        head[u] = cnt;
-        edge[cnt].to = v;
-        edge[cnt].w = w;
-    }
-};
+#define LS (rt << 1)
+#define RS (rt << 1 | 1)
 
 class SegTree{
 public:
-    Graph* graph;    
     struct Node{
+        Node() {
+
+        }
     }nodes[N*4];
-    #define ls (rt << 1)
-    #define rs (rt << 1 | 1)
+
     Node merge(Node L,Node R){
         Node M;
         return M;
@@ -2772,104 +2666,130 @@ public:
             return;
         }
         int mid = l + r >> 1;
-        build(ls,l,mid),build(rs,mid+1,r);
-        nodes[rt] = merge(nodes[ls],nodes[rs]);
+        build(LS,l,mid),build(RS,mid+1,r);
+        nodes[rt] = merge(nodes[LS],nodes[RS]);
     }
-    void pd(int rt,int l,int r){
+    void pd(int rt){
+
     }
-    void update(int rt,int l,int r,int ql,int qr,int v){
+    void update(int rt,int l,int r,int ql,int qr,int val){
+        if (ql > qr || l > qr || ql > r) return;
         if (ql <= l && r <= qr){
             return;
         }
         int mid = l+r>>1;
-        pd(rt,l,r);
+        pd(rt);
         if (ql <= mid){
-            update(ls,l,mid,ql,qr,v);
+            update(LS,l,mid,ql,qr,val);
         }
         if (qr >= mid + 1){
-            update(rs,mid+1,r,ql,qr,v);
+            update(RS,mid+1,r,ql,qr,val);
         }
-        nodes[rt] = merge(nodes[ls],nodes[rs]);
+        nodes[rt] = merge(nodes[LS],nodes[RS]);
+        return;
+    }
+    void modify(int rt,int l,int r,int q,int val){
+        if (l > q || r < q) return;
+        if (l == r) {
+            return;
+        }
+        int mid = l+r>>1;
+        pd(rt);
+        if (q <= mid){
+            modify(LS,l,mid,q,val);
+        }
+        if (q >= mid + 1){
+            modify(RS,mid+1,r,q,val);
+        }
+        nodes[rt] = merge(nodes[LS],nodes[RS]);
         return;
     }
     Node query(int rt,int l,int r,int ql,int qr){
+        if (ql > qr) {
+            return Node();
+        }
         if (ql <= l && r <= qr){
             return nodes[rt];
         }
         int mid = l+r>>1;
-        pd(rt,l,r);
+        pd(rt);
         if (ql > mid){
-            return query(rs,mid+1,r,ql,qr);
+            return query(RS,mid+1,r,ql,qr);
         }else if (qr < mid + 1){
-            return query(ls,l,mid,ql,qr);
+            return query(LS,l,mid,ql,qr);
         }else{
-            return merge(query(ls,l,mid,ql,qr),query(rs,mid+1,r,ql,qr));
+            return merge(query(LS,l,mid,ql,qr),query(RS,mid+1,r,ql,qr));
         }
     }
 };
 
-class TreeChainSeg{
-public:
-    Graph* graph;
-    SegTree segTree;
-    int fa[N],top[N],siz[N],son[N],dep[N],dfn[N],id[N],cnt,n,cnt2;
-    TreeChainSeg(int N){
-        graph->init(N);
-        n = N;
-        cnt = 0;
-        cnt2 = n+1;
-        for (int i = 0;i<=N;i++){
-            fa[i] = top[i] = siz[i] = son[i] = dep[i] = dfn[i] = id[i] = 0;
-        }
-    }
-    void dfs1(int u){
+struct TreeChainSeg {
+    vector<vector<int>> g;
+    SegTree seg;
+    vector<int> fa, top, siz, son, dep, dfn, id;
+    int cnt, n, cnt2;
+
+    void dfs1(int u) {
         siz[u] = 1;
-        for (int i = graph->head[u];i;i=graph->edge[i].next){
-            int v = graph->edge[i].to;
+        for (auto v : g[u]) {
             if (fa[u] == v) continue;
             dep[v] = dep[u] + 1;
             fa[v] = u;
             dfs1(v);
             siz[u] += siz[v];
-            if (!son[u] || siz[son[u]] < siz[v]){
+            if (!son[u] || siz[son[u]] < siz[v]) {
                 son[u] = v;
             }
         }
+        return;
     }
-    void dfs2(int u,int tp){
-        dfn[cnt] = u;
-        id[u] = ++cnt;
+
+    void dfs2(int u, int tp) {
+        id[cnt] = u;
+        dfn[u] = ++cnt;
         top[u] = tp;
-        if (son[u]){
-            dfs2(son[u],tp);
+        if (son[u]) {
+            dfs2(son[u], tp);
         }
-        for (int i = graph->head[u];i;i=graph->edge[i].next){
-            int v = graph->edge[i].to;
+        for (auto v : g[u]) {
             if (v == fa[u] || v == son[u]) continue;
-            dfs2(v,v);
+            dfs2(v, v);
         }
+        return;
     }
-    void init(Graph* g){
-        graph = g;
-        dfs1(1),dfs2(1,1);
-        segTree.graph = graph;
-        segTree.build(1,1,n);
+
+    void init(vector<vector<int>>& G) {
+        g = G;
+        n = g.size();
+        cnt = 0, cnt2 = n + 1;
+        fa.clear(); fa.resize(n + 1, 0);
+        top.clear(); top.resize(n + 1, 0);
+        siz.clear(); siz.resize(n + 1, 0);
+        son.clear(); son.resize(n + 1, 0);
+        dep.clear(); dep.resize(n + 1, 0);
+        dfn.clear(); dfn.resize(n + 1, 0);
+        id.clear(); id.resize(n + 1, 0);
+
+        dfs1(1), dfs2(1, 1);
+        seg.build(1, 1, n);
+        return;
     }
-    int lca(int u,int v){
-        while (top[u] != top[v]){
-            if (dep[top[u]] > dep[top[v]]){
+
+    int lca(int u, int v) {
+        while (top[u] != top[v]) {
+            if (dep[top[u]] > dep[top[v]]) {
                 u = fa[top[u]];
-            }else{
+            } else {
                 v = fa[top[v]];
             }
         }
-        if (dep[u] > dep[v]){
+        if (dep[u] > dep[v]) {
             return v;
-        }else{
-            return u;
         }
+        return u;
     }
-};"\n"
+ };
+"\n"
 ```
 
 ## TreeHash.cpp
@@ -2899,6 +2819,160 @@ ll f(ll x) {
     ll cur = h(x & ((1 << 31) - 1)) + h(x >> 31);
     return cur;
 }"\n"
+```
+
+## VirtualTree.cpp
+```cpp
+#define DEBUG 1
+#define FUCK cout << "fuck" << endl;
+#if DEBUG
+    #include "all.hpp"
+#else
+    #include <bits/stdc++.h>
+#endif
+
+using namespace std;
+using ll = long long;
+using pii = pair<int,int>;
+using pll = pair<ll,ll>;
+using db = long double;
+using pdd = pair<db, db>;
+
+const ll N = 2000000;
+const ll INF = 5e18;
+const ll MOD = 1e9 + 7;
+
+/*
+虚树的建立需要依靠 lca, 这里写的是 O(1) lca
+有时, 虚树需要额外插入根节点, 才能保证 dp 的正确性
+*/
+
+class Lca {
+public:
+    vector<vector<int>>* g;
+    vector<int> depth, first, euler;
+    vector<ll> dist;
+    vector<vector<int>> st;
+    int lg[2 * N];
+    
+    void init(vector<vector<int>>* graph, int root) {
+        g = graph;
+        euler.clear();
+        depth.clear();
+        dist.clear();
+        dist.resize(g->size());
+        first.assign(g->size(), -1);
+        dfs(root, 0, 0, 0);
+        build_st();
+    }
+
+    void dfs(int u, int fa, int d, ll sum) {
+        first[u] = euler.size();
+        euler.push_back(u);
+        depth.push_back(d);
+        dist[u] = sum;
+        for (auto v : (*g)[u]) {
+            if (v == fa) continue;
+            dfs(v, u, d + 1, sum + 1); // 默认边权是 1
+            euler.push_back(u);
+            depth.push_back(d);
+        }
+    }
+
+    void build_st() {
+        int m = euler.size();
+        int k = __lg(m) + 1;
+        st.assign(k, vector<int>(m));
+        for (int i = 0; i < m; ++i) st[0][i] = i;
+        for (int i = 2; i < m + 5; ++i) lg[i] = lg[i >> 1] + 1;
+        for (int j = 1; (1 << j) <= m; ++j)
+            for (int i = 0; i + (1 << j) <= m; ++i) {
+                int l = st[j - 1][i], r = st[j - 1][i + (1 << (j - 1))];
+                st[j][i] = (depth[l] < depth[r] ? l : r);
+            }
+    }
+
+    int lca(int u, int v) {
+        int l = first[u], r = first[v];
+        if (l > r) swap(l, r);
+        int j = lg[r - l + 1];
+        int a = st[j][l], b = st[j][r - (1 << j) + 1];
+        return euler[depth[a] < depth[b] ? a : b];
+    }
+
+    int query(int u,int v) {
+        int LCA = lca(u,v);
+        return dist[u] + dist[v] - 2 * dist[LCA];
+    }
+} solver;
+
+void solve() {
+    int n; cin >> n;
+    vector<vector<int>> g(n + 1);
+    for (int i = 1;i<n;i++) {
+        int u, v; cin >> u >> v;
+        g[u].push_back(v);
+        g[v].push_back(u);
+    }
+    solver.init(&g, 1);
+    vector<int> dfn(n + 1, 0);
+    int cntDfn = 0;
+    auto dfs0 = [&](auto&&self, int u, int f) -> void {
+        dfn[u] = ++cntDfn;
+        for (auto v : g[u]) {
+            if (v == f) continue;
+            self(self, v, u);
+        }
+    };
+    dfs0(dfs0, 1, -1);
+
+    vector<int> spe;
+    // 插入特殊点
+    sort(spe.begin(), spe.end(), [&](int x, int y){
+        return dfn[x] < dfn[y];
+    });
+    int sz = spe.size();
+    for (int i = 0;i+1<sz;i++) {
+        spe.push_back(solver.lca(spe[i], spe[i + 1]));
+    }
+    sort(spe.begin(), spe.end(), [&](int x, int y){
+        return dfn[x] < dfn[y];
+    });
+    spe.erase(unique(spe.begin(), spe.end()), spe.end());
+    vector<vector<int>> e(n + 1); // 虚树
+    for (int i = 0;i+1<spe.size();i++) {
+        int lca = solver.lca(spe[i], spe[i + 1]);
+        e[lca].push_back(spe[i + 1]);
+    }
+    return;
+}
+
+signed main() {
+#if DEBUG
+    freopen("input.txt", "r", stdin);
+    auto start_time = chrono::steady_clock::now();
+#else
+    ios::sync_with_stdio(false);
+#endif
+    cin.tie(nullptr);
+
+    int t = 1;
+    cin >> t;
+
+    while (t--) {
+        solve();
+    }
+
+#if DEBUG
+    auto end_time = chrono::steady_clock::now();
+    auto diff = chrono::duration_cast<chrono::milliseconds>(end_time - start_time);
+    cerr << "Time: " << diff.count() << " ms" << endl;
+
+#endif
+
+    return 0;
+}
+"\n"
 ```
 
 ## ArrayInversion.cpp
@@ -3525,24 +3599,44 @@ void printInt128(int128 n) {
 "\n"
 ```
 
-## LagrangeInterpolation.cpp
+## Lagrange-Interpolation.cpp
 ```cpp
-#include <bits/stdc++.h>
-using namespace std;
 #define DEBUG 1
+#if DEBUG
+    #include "all.hpp"
+#else
+    #include <bits/stdc++.h>
+#endif
+
+using namespace std;
 using ll = long long;
 using pii = pair<int,int>;
 using pll = pair<ll,ll>;
-const ll N = 4000000;
+using db = long double;
+using pdd = pair<db, db>;
+
+const ll N = 2000000;
 const ll INF = 5e18;
 const ll MOD = 1e9 + 7;
 
+/*
+记得先 init !!!
+
+cal 函数传入一段连续的函数值(按照横坐标排序)
+格式为 (x, f(x)), 然后传入待计算的横坐标
+
+单次插值复杂度 O(n) .
+*/
+
 namespace LagInt {
+    ll fac[N];
+
+    // 模数为质数 !!!
     ll qpow(ll base,ll k,ll mod) {
+        if (base == 0) return 0;
         ll res = 1;
-        if (k < 0) {
-            return qpow(qpow(base,-k,mod),mod-2,mod);
-        }
+        base %= mod; base = (base + mod) % mod;
+        k %= (mod - 1); k = (k + mod - 1) % (mod - 1);
         while (k) {
             if (k & 1) {
                 res *= base; res %= mod;
@@ -3553,103 +3647,79 @@ namespace LagInt {
         return res;
     }
 
-    ll fac[N],facInv[N];
-
     void init(int n) {
-        fac[0] = 1; facInv[0] = 1;
+        fac[0] = 1;
         for (int i = 1;i<=n;i++) {
             fac[i] = fac[i - 1] * i % MOD;
-        }
-        
-        vector<ll> pre(n + 1,1),suc(n + 1,1);
-        for (int i = 1;i<=n;i++) {
-            pre[i] = pre[i - 1] * fac[i] % MOD;
-        }
-        suc[n] = fac[n];
-        for (int i = n - 1;i>=0;i--) {
-            suc[i] = suc[i + 1] * fac[i] % MOD;
-        }
-
-        ll S = qpow(pre[n],MOD - 2,MOD);
-
-        for (int i = 1;i<=n;i++) {
-            facInv[i] = S * pre[i - 1] % MOD * suc[i + 1] % MOD;
         }
         return;
     }
 
-    // 当 x[i] = i 时,用 A 模式,复杂度 nlogn
-    // 记得先调用预处理
-    ll LagrangeInterpolationA(ll x,vector<ll>& a) {
-        x %= MOD;
-        if (x < 0) return 0;
-        if (a.size() > x) {
-            return a[x];
+    ll cal(vector<pll>& f, ll x) {
+        int n = f.size() - 1;
+        vector<ll> pre(n + 1, 0), suf(n + 1, 0);
+        vector<ll> inv(n + 1, 0);
+
+        for (int i = 0;i<=n;i++) {
+            inv[i] = fac[i] * fac[n - i] % MOD;
         }
-        ll t = 1;
-        for (int i = 1;i<=a.size() - 1;i++) {
-            t *= (x - i); t %= MOD;
+        for (int i = 0;i<=n;i++) {
+            if (i - 1 >= 0) {
+                pre[i] = pre[i - 1] * inv[i] % MOD;
+            } else {
+                pre[i] = inv[i];
+            }
+        }
+        for (int i = n;i>=0;i--) {
+            if (i + 1 <= n) {
+                suf[i] = suf[i + 1] * inv[i] % MOD;
+            } else {
+                suf[i] = inv[i];
+            }
+        }
+        ll base = qpow(pre[n], MOD - 2, MOD);
+        for (int i = 0;i<=n;i++) {
+            inv[i] = base;
+            if (i - 1 >= 0) {
+                inv[i] = inv[i] * pre[i - 1] % MOD;
+            }
+            if (i + 1 <= n) {
+                inv[i] = inv[i] * suf[i + 1] % MOD;
+            }
+        }
+
+        for (int i = 0;i<=n;i++) {
+            if (i - 1 >= 0) {
+                pre[i] = pre[i - 1] * (x - f[i].first) % MOD;
+                pre[i] = (pre[i] + MOD) % MOD;
+            } else {
+                pre[i] = (x - f[i].first) % MOD;
+                pre[i] = (pre[i] + MOD) % MOD;
+            }
+        }
+
+        for (int i = n;i>=0;i--) {
+            if (i + 1 <= n) {
+                suf[i] = suf[i + 1] * (x - f[i].first) % MOD;
+                suf[i] = (suf[i] + MOD) % MOD;
+            } else {
+                suf[i] = (x - f[i].first) % MOD;
+                suf[i] = (suf[i] + MOD) % MOD;
+            }
         }
 
         ll ans = 0;
-        int n = int(a.size()) - 1;
-
-        for (int i = 1;i<a.size();i++) {
-            ll y = a[i];
-            ll res = t;
-            res *= y; res %= MOD;
-            res *= qpow((x - i) % MOD,MOD-2,MOD); res %= MOD;
-            res *= facInv[i - 1]; res %= MOD;
-            res *= facInv[n - i]; res %= MOD;
-            ll sign = ((n - i) & 1) ? (MOD - 1) : 1;
-            res = res * sign % MOD;
-            ans += res; ans %= MOD;
+        for (int i = 0;i<=n;i++) {
+            ll res = f[i].second;
+            if (i - 1 >= 0) res = res * pre[i - 1] % MOD;
+            if (i + 1 <= n) res = res * suf[i + 1] % MOD;
+            res = res * inv[i] % MOD;
+            if ((n - i) & 1) res = (-res + MOD) % MOD;
+            ans = (ans + res) % MOD;
         }
         return ans;
     }
-};
-
-void solve() {
-    ll n,k;
-    cin >> n >> k;
-    LagInt::init(2e6);
-
-    vector<ll> a(k + 3,0);
-    for (int i = 1;i<k+3;i++) {
-        a[i] = a[i - 1] + LagInt::qpow(i,k,MOD);
-        a[i] %= MOD;
-    }
-
-    cout << LagInt::LagrangeInterpolationA(n,a) << endl;
-    return;
-}
-
-signed main() {
-#if DEBUG
-    freopen("input.txt", "r", stdin);
-    auto start_time = chrono::steady_clock::now();
-#else
-    ios::sync_with_stdio(false);
-#endif
-    cin.tie(nullptr);
-
-    int t = 1;
-    // cin >> t;
-
-    while (t--) {
-        solve();
-    }
-
-#if DEBUG
-    auto end_time = chrono::steady_clock::now();
-    auto diff = chrono::duration_cast<chrono::milliseconds>(end_time - start_time);
-    cerr << "Time: " << diff.count() << " ms" << endl;
-
-#endif
-
-    return 0;
-}
-"\n"
+};"\n"
 ```
 
 ## LinearBasis.cpp
@@ -4402,7 +4472,8 @@ poly lagrange(const vector<pair<mint, mint>>& a) {
   return ans;
 }
 }
-using namespace polystd;"\n"
+using namespace polystd;
+"\n"
 ```
 
 ## PolynomialMultiplier.cpp

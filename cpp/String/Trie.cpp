@@ -8,13 +8,46 @@ const ll N = 2000000;
 const ll INF = 5e18;
 const ll MOD = 1e9 + 7;
 
+namespace Trie {
+    const int M = 31;
+    struct Node {
+        int ch[2];
+        Node() {
+            ch[0] = ch[1] = 0;
+        }
+    } nodes[N * 10]; // 注意节点数分析对
+
+    int cntNode; // 初始化为 0
+    int newNode() {
+        ++ cntNode;
+        nodes[cntNode] = Node();
+        return cntNode;
+    }
+
+    void insert(int rt, int dep, int x) {
+        if (dep == -1) return;
+        if ((x >> dep) & 1) {
+            if (!nodes[rt].ch[1]) {
+                nodes[rt].ch[1] = newNode();
+            }
+            insert(nodes[rt].ch[1], dep - 1, x);
+        } else {
+            if (!nodes[rt].ch[0]) {
+                nodes[rt].ch[0] = newNode();
+            }
+            insert(nodes[rt].ch[0], dep - 1, x);
+        }
+        return;
+    }
+};
+using namespace Trie;
 
 struct Trie {
     int cnt;
     struct Node {
         int ch[2];
         Node () {
-            ch[0] = ch[1] = -1;
+            ch[0] = ch[1] = 0;
         }
     };
     vector<Node> nodes;

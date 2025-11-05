@@ -1,83 +1,86 @@
 #include <iostream>
 #include <cstring>
+#include <ctime>
+#include <algorithm>
+#include <cmath>
+#include <vector>
+#include <queue>
+#include <set>
+#include <map>
 using namespace std;
-
-const int N=6000006,mod=998244353;
-char s[N];
-
-int pam[N][10],last,p,ni;
-int fail[N],cnt[N],len[N],sz[N];
-int lenlen;
-
-int newnode(int l)
+typedef long long int ll;
+const int N=1e6+9,INF=1e9;
+const double eps=1e-5;
+typedef pair <int,int> PII;
+inline int read()
 {
-    memset(pam[p], 0, sizeof(pam[p]));
-    cnt[p] = 0;
-    // num[p] = 0;
-    len[p] = l;
-    return p ++;
+    int x=0,f=1;char c=getchar();
+    while(c<'0' || c>'9') {if(c=='-') f=-1;c=getchar();}
+    while(c>='0' && c<='9') {x=x*10+c-48,c=getchar();}
+    return x*f;
 }
-
-void init()
+inline ll readll()
 {
-    p = last = 0;
-    newnode(0), newnode(-1);
-    s[0] = '?';
-    fail[0] = 1;
+    ll x=0,f=1;char c=getchar();
+    while(c<'0' || c>'9') {if(c=='-') f=-1;c=getchar();}
+    while(c>='0' && c<='9') {x=x*10+c-48,c=getchar();}
+    return x*f;
 }
-
-int get_fail(int x)
+struct node{
+    int to,nxt;
+} edge[N];
+int n,m,tot,head[N],siz[N],ans;
+bool vis[N];
+void addedge(int u,int v)
 {
-    while(s[ni - len[x] - 1] != s[ni])
-        x = fail[x];
-    return x;
+    edge[++tot].to=v,edge[tot].nxt=head[u],head[u]=tot;
 }
-
-void add(int c)
+void dfs(int u,int fa)
 {
-    int old = get_fail(last);
-    if(!pam[old][c])
+    for(int i=head[u];i;i=edge[i].nxt)
     {
-        int now = newnode(len[old] + 2);
-        fail[now] = pam[get_fail(fail[old])][c];
-        pam[old][c] = now;
-        // num[now] = num[fail[now]] + 1;
+        int v=edge[i].to;
+        if(v==fa) continue;
+        dfs(v,u);
+        siz[u]+=siz[v];
     }
-    last = pam[old][c];
-    cnt[last] ++;
-}
-
-void calc()
-{
-    for(int i = p-1; i>=0; i--)
+    if(vis[u])
     {
-        cnt[fail[i]] += cnt[i];
+        ans+=(siz[u]+1)/2;
+        if(siz[u]&1 && fa!=0) vis[fa]=true; 
+        siz[u]=0;
     }
+    else siz[u]++;
 }
-
 int main()
 {
-    freopen("input.txt", "r", stdin);
-    init();
-    
-    scanf("%d", &lenlen);
-    scanf("%s", s+1);
-    for(int i=1+lenlen; i<=lenlen*2; i++)
-        s[i] = s[i-lenlen];
-    for(ni=1; ni<=lenlen; ni++)
-        add(s[ni]-'0');
-    for(int i=p-1; i>=0; i--)
-        sz[i] = cnt[i];
-    for(int i=p-1; i>=0; i--)
-        sz[fail[i]] += sz[i];
-    for(ni=lenlen+1; ni<=lenlen*2; ni++)
-        add(s[ni] - '0');
-    calc();
-    long long ans = 0;
-    for(int i=2; i<p; i++)
-        if(len[i] <= lenlen)
-            // cout << len[i] << " " << cnt[i] << "  " << sz[i] << "\n",
-            ans = (ans + (1ll*(cnt[i] - sz[i])*(cnt[i] - sz[i])%mod) * len[i])%mod;
-    cout << ans << '\n';
+    // #define FILEIO
+    #ifdef FILEIO
+        freopen("in.in","r",stdin);
+        freopen("out.out","w",stdout);
+    #endif
+    int T=read();
+    while(T--)
+    {
+        n=read(),m=read();
+        tot=ans=0;
+        for(int i=1;i<=n;i++) head[i]=siz[i]=vis[i]=0;
+        for(int i=1;i<=m;i++) vis[read()]=true;
+        for(int i=1;i<n;i++)
+        {
+            int u=read(),v=read();
+            addedge(u,v),addedge(v,u);
+        }
+        for(int i=1;i<=n;i++)
+        {
+            if(vis[i])
+            {
+                dfs(i,0);
+                break;
+            }
+        }
+        cout<<ans<<'\n';
+    }
+    cerr<<endl<<1e3*clock()/CLOCKS_PER_SEC<<"ms";
     return 0;
 }

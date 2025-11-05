@@ -4,6 +4,10 @@ typedef long long ll;
 const ll N = 2000000;
 const ll INF = 1e18;
 
+/*
+切记 pd 清空旧标记
+*/
+
 #define LS (rt << 1)
 #define RS (rt << 1 | 1)
 

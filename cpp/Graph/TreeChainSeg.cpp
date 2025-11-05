@@ -3,37 +3,17 @@ using namespace std;
 typedef long long ll;
 const ll N = 2000000;
 
-class Graph{
-public:
-    struct Edge{
-        int next,to,w;
-    }edge[N];
-    int head[N],cnt;
-    Graph (int N = 0){
-        for (int i = 0;i<N+1;i++){
-            head[i] = 0;
-        }
-    }
-    void init(int N){
-        for (int i = 0;i<N+1;i++){
-            head[i] = 0;
-        }
-    }
-    void add(int u,int v,int w){
-        edge[++cnt].next = head[u];
-        head[u] = cnt;
-        edge[cnt].to = v;
-        edge[cnt].w = w;
-    }
-};
+#define LS (rt << 1)
+#define RS (rt << 1 | 1)
 
 class SegTree{
 public:
-    Graph* graph;    
     struct Node{
+        Node() {
+
+        }
     }nodes[N*4];
-    #define ls (rt << 1)
-    #define rs (rt << 1 | 1)
+
     Node merge(Node L,Node R){
         Node M;
         return M;
@@ -43,101 +23,126 @@ public:
             return;
         }
         int mid = l + r >> 1;
-        build(ls,l,mid),build(rs,mid+1,r);
-        nodes[rt] = merge(nodes[ls],nodes[rs]);
+        build(LS,l,mid),build(RS,mid+1,r);
+        nodes[rt] = merge(nodes[LS],nodes[RS]);
     }
-    void pd(int rt,int l,int r){
+    void pd(int rt){
+
     }
-    void update(int rt,int l,int r,int ql,int qr,int v){
+    void update(int rt,int l,int r,int ql,int qr,int val){
+        if (ql > qr || l > qr || ql > r) return;
         if (ql <= l && r <= qr){
             return;
         }
         int mid = l+r>>1;
-        pd(rt,l,r);
+        pd(rt);
         if (ql <= mid){
-            update(ls,l,mid,ql,qr,v);
+            update(LS,l,mid,ql,qr,val);
         }
         if (qr >= mid + 1){
-            update(rs,mid+1,r,ql,qr,v);
+            update(RS,mid+1,r,ql,qr,val);
         }
-        nodes[rt] = merge(nodes[ls],nodes[rs]);
+        nodes[rt] = merge(nodes[LS],nodes[RS]);
+        return;
+    }
+    void modify(int rt,int l,int r,int q,int val){
+        if (l > q || r < q) return;
+        if (l == r) {
+            return;
+        }
+        int mid = l+r>>1;
+        pd(rt);
+        if (q <= mid){
+            modify(LS,l,mid,q,val);
+        }
+        if (q >= mid + 1){
+            modify(RS,mid+1,r,q,val);
+        }
+        nodes[rt] = merge(nodes[LS],nodes[RS]);
         return;
     }
     Node query(int rt,int l,int r,int ql,int qr){
+        if (ql > qr) {
+            return Node();
+        }
         if (ql <= l && r <= qr){
             return nodes[rt];
         }
         int mid = l+r>>1;
-        pd(rt,l,r);
+        pd(rt);
         if (ql > mid){
-            return query(rs,mid+1,r,ql,qr);
+            return query(RS,mid+1,r,ql,qr);
         }else if (qr < mid + 1){
-            return query(ls,l,mid,ql,qr);
+            return query(LS,l,mid,ql,qr);
         }else{
-            return merge(query(ls,l,mid,ql,qr),query(rs,mid+1,r,ql,qr));
+            return merge(query(LS,l,mid,ql,qr),query(RS,mid+1,r,ql,qr));
         }
     }
 };
 
-class TreeChainSeg{
-public:
-    Graph* graph;
-    SegTree segTree;
-    int fa[N],top[N],siz[N],son[N],dep[N],dfn[N],id[N],cnt,n,cnt2;
-    TreeChainSeg(int N){
-        graph->init(N);
-        n = N;
-        cnt = 0;
-        cnt2 = n+1;
-        for (int i = 0;i<=N;i++){
-            fa[i] = top[i] = siz[i] = son[i] = dep[i] = dfn[i] = id[i] = 0;
-        }
-    }
-    void dfs1(int u){
+struct TreeChainSeg {
+    vector<vector<int>> g;
+    SegTree seg;
+    vector<int> fa, top, siz, son, dep, dfn, id;
+    int cnt, n, cnt2;
+
+    void dfs1(int u) {
         siz[u] = 1;
-        for (int i = graph->head[u];i;i=graph->edge[i].next){
-            int v = graph->edge[i].to;
+        for (auto v : g[u]) {
             if (fa[u] == v) continue;
             dep[v] = dep[u] + 1;
             fa[v] = u;
             dfs1(v);
             siz[u] += siz[v];
-            if (!son[u] || siz[son[u]] < siz[v]){
+            if (!son[u] || siz[son[u]] < siz[v]) {
                 son[u] = v;
             }
         }
+        return;
     }
-    void dfs2(int u,int tp){
-        dfn[cnt] = u;
-        id[u] = ++cnt;
+
+    void dfs2(int u, int tp) {
+        id[cnt] = u;
+        dfn[u] = ++cnt;
         top[u] = tp;
-        if (son[u]){
-            dfs2(son[u],tp);
+        if (son[u]) {
+            dfs2(son[u], tp);
         }
-        for (int i = graph->head[u];i;i=graph->edge[i].next){
-            int v = graph->edge[i].to;
+        for (auto v : g[u]) {
             if (v == fa[u] || v == son[u]) continue;
-            dfs2(v,v);
+            dfs2(v, v);
         }
+        return;
     }
-    void init(Graph* g){
-        graph = g;
-        dfs1(1),dfs2(1,1);
-        segTree.graph = graph;
-        segTree.build(1,1,n);
+
+    void init(vector<vector<int>>& G) {
+        g = G;
+        n = g.size();
+        cnt = 0, cnt2 = n + 1;
+        fa.clear(); fa.resize(n + 1, 0);
+        top.clear(); top.resize(n + 1, 0);
+        siz.clear(); siz.resize(n + 1, 0);
+        son.clear(); son.resize(n + 1, 0);
+        dep.clear(); dep.resize(n + 1, 0);
+        dfn.clear(); dfn.resize(n + 1, 0);
+        id.clear(); id.resize(n + 1, 0);
+
+        dfs1(1), dfs2(1, 1);
+        seg.build(1, 1, n);
+        return;
     }
-    int lca(int u,int v){
-        while (top[u] != top[v]){
-            if (dep[top[u]] > dep[top[v]]){
+
+    int lca(int u, int v) {
+        while (top[u] != top[v]) {
+            if (dep[top[u]] > dep[top[v]]) {
                 u = fa[top[u]];
-            }else{
+            } else {
                 v = fa[top[v]];
             }
         }
-        if (dep[u] > dep[v]){
+        if (dep[u] > dep[v]) {
             return v;
-        }else{
-            return u;
         }
+        return u;
     }
-};
+ };
