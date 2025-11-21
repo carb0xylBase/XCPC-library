@@ -1,15 +1,1 @@
-void solve(){
-    ComNum::init();
-    ll n, m; cin >> n >> m;
-    ll K = m - n + 1;
-    ll ans = 0;
-    for (ll i = 0; i <= K; ++i) {
-        ll a = ComNum::C(-n + 1, i);
-        ll b = ComNum::C(-n - 1, K - i);
-        ll term = a * b % MOD;
-        if ((K - i) & 1) term = (MOD - term) % MOD; // (-1)^{K-i}
-        ans = (ans + term) % MOD;
-    }
-    ans = ans * ComNum::fac[n] % MOD; // multiply by N!
-    cout << ans << '\n';
-}
+192

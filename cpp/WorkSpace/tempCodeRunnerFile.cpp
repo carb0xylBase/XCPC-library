@@ -1,2 +1,2 @@
- - 2, MOD);
-    }
+
+    ios::sync_with_stdio(false);
