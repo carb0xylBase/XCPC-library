@@ -28,17 +28,37 @@ ll qpow(ll base,ll k,ll mod) {
 struct Lucas {
     int p;
     vector<int> fact;
+    vector<int> inv;
     void init(int P_) {
         p = P_;
         fact.resize(p);
+        inv.resize(p);
         fact[0] = 1;
         for (int i = 1;i<p;i++) {
             fact[i] = 1ll * fact[i - 1] * i % p;
         }
+        vector<ll> pre(p, 1), suf(p, 1);
+        for (int i = 1;i<p;i++) {
+            pre[i] = pre[i - 1] * fact[i] % p;
+        }
+        suf[p - 1] = p - 1;
+        for (int i = p - 2;i>=1;i--) {
+            suf[i] = suf[i + 1] * fact[i] % p;
+        }
+        ll base = qpow(pre.back(), p - 2, p);
+        inv[0] = 1;
+        for (int i = 1;i<p;i++) {
+            if (i + 1 < p) {
+                inv[i] = pre[i - 1] * suf[i + 1] % p;
+            } else {
+                inv[i] = pre[i - 1];
+            }
+            inv[i] = inv[i] * base % p;
+        }
     }
     int C(int n, int m) {
         if (m > n) return 0;
-        return 1ll * fact[n] * qpow(fact[n-m], p-2, p) % p * qpow(fact[m], p-2, p) % p;
+        return 1ll * fact[n] * inv[n - m] % p * inv[m] % p;
     }
     int cal(int n, int m) {
         if (m > n) return 0;
@@ -47,7 +67,7 @@ struct Lucas {
         }
         return 1ll * cal(n / p, m / p) * C(n % p, m % p) % p;
     }
-};
+} solver;
 
 // 这个 C 真的是接口了
 struct ExLucas {

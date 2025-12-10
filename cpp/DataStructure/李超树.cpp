@@ -9,8 +9,7 @@ const ll INF = 1e18;
 
 使用方法是先 add 再 update
 */
-class LiChaoTree {
-public:
+struct LiChaoTree {
     typedef pair<double, int> pdi;
 
     const double eps = 1e-9;
@@ -128,5 +127,50 @@ struct LiChao {
     
     ll query(ll x) {
         return query(x, root, L, R);
+    }
+};
+
+/*
+应对 db 的版本
+init 函数中给出定义域即可
+long double 比 double 慢得多, 慎用!!!
+*/
+
+using db = double;
+const db INF_LD = numeric_limits<db>::infinity();
+
+struct LiChao {
+    struct Line { db m, b; };
+    struct Node { Line ln; Node *l, *r; Node(Line v):ln(v),l(nullptr),r(nullptr){} };
+    db L, R;
+    Node *root;
+    int maxDepth;
+    LiChao(db _L = 0, db _R = 0, int _maxDepth = 50):L(_L),R(_R),root(nullptr),maxDepth(_maxDepth){}
+    inline db eval(const Line &ln, db x) const { return ln.m * x + ln.b; }
+    void addLine(Line nw, Node *&nd, db l, db r, int depth) {
+        if (!nd) { nd = new Node(nw); return; }
+        db m = (l + r) / 2;
+        bool lef = eval(nw, l) < eval(nd->ln, l);
+        bool mid = eval(nw, m) < eval(nd->ln, m);
+        if (mid) swap(nw, nd->ln);
+        if (depth == 0) return;
+        if (lef != mid) addLine(nw, nd->l, l, m, depth-1);
+        else addLine(nw, nd->r, m, r, depth-1);
+    }
+    void addLine(db m, db b) { addLine({m,b}, root, L, R, maxDepth); }
+    db query(db x, Node *nd, db l, db r, int depth) const {
+        if (!nd) return INF_LD;
+        db res = eval(nd->ln, x);
+        if (depth == 0) return res;
+        db mid = (l + r) / 2;
+        if (x <= mid) return min(res, query(x, nd->l, l, mid, depth-1));
+        else return min(res, query(x, nd->r, mid, r, depth-1));
+    }
+    db query(db x) const { return query(x, root, L, R, maxDepth); }
+    void init(db _L, db _R, int _maxDepth = 50) {
+        L = _L;
+        R = _R;
+        maxDepth = _maxDepth;
+        root = nullptr;
     }
 };

@@ -1,12 +1,28 @@
-#include <bits/stdc++.h>
-typedef long long ll;
-const ll MOD = 1000000007;
+/* 死亡回放
+你的输入, 真的写对了吗?? (2025 ICPC 沈阳 M)
+*/
+#define DEBUG 1
+#define FUCK cout << "fuck" << endl;
+#if DEBUG
+    #include "all.hpp"
+#else
+    #include <bits/stdc++.h>
+#endif
+
 using namespace std;
-// 1e7 的数组慎开啊
-// 支持广义二项式定理
+using ll = long long;
+using pii = pair<int,int>;
+using pll = pair<ll,ll>;
+using db = long double;
+using pdd = pair<db, db>;
+using i128 = __int128_t;
+
+const ll N = 2000000;
+const ll INF = 5e18;
+const ll MOD = 1e9 + 7;
+
 namespace ComNum {
     const int MAXN = 5e6;
-    const int MOD = 998244353;
     ll fac[MAXN], inv[MAXN];
 
     ll qpow(ll base,ll k,ll mod) {
@@ -60,5 +76,13 @@ namespace ComNum {
             if(m & 1) res = (MOD - res) % MOD;
             return res;
         }
+    }
+};
+
+namespace Catalan {
+    ll get(int n) {
+        ll res = ComNum::C(2 * n, n);
+        res = (res - ComNum::C(2 * n, n + 1) + MOD) % MOD;
+        return res;
     }
 };

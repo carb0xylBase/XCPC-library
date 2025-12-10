@@ -39,3 +39,15 @@ void printInt128(int128 n) {
         putchar(buffer[--bufferIndex]);
     }
 }
+
+using i128 = __int128_t;
+// 判断 i128 右移 s 位会不会溢出
+bool check (i128 x, int s) {
+    if (x == 0) return true;
+    unsigned __int128 ux = x < 0 ? -(unsigned __int128)x : (unsigned __int128)x;
+    if (s >= 127) return ux == 0; 
+    unsigned __int128 pos_limit = ((((unsigned __int128)1) << 127) - 1) >> s;
+    unsigned __int128 neg_limit = (((unsigned __int128)1) << 127) >> s;
+    if (x < 0) return ux <= neg_limit; 
+    else return ux <= pos_limit; 
+};
